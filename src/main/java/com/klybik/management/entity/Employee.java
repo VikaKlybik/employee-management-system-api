@@ -1,0 +1,21 @@
+package com.klybik.management.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import lombok.*;
+
+import java.util.UUID;
+
+@Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Employee {
+    @Id
+    private UUID id;
+    @ManyToOne
+    private JobTitle jobTitle;
+}
