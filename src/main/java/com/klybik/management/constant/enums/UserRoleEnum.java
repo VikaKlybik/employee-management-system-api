@@ -1,4 +1,4 @@
-package com.klybik.management.constant;
+package com.klybik.management.constant.enums;
 
 import lombok.Getter;
 

@@ -1,6 +1,6 @@
 package com.klybik.management.dto.user;
 
-import com.klybik.management.constant.UserRoleEnum;
+import com.klybik.management.constant.enums.UserRoleEnum;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

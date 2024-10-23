@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,13 +21,14 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping()
+    @GetMapping
     public UserResponse getUserByEmail(@PathParam("email") String email) {
         User user = userService.getUserByEmail(email);
         return userMapper.toUserResponse(user);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         User user = userService.createUser(createUserRequest);
         return userMapper.toUserResponse(user);
