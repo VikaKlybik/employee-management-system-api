@@ -2,7 +2,7 @@ package com.klybik.management.service;
 
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Duplicate;
-import com.klybik.management.constant.UserRoleEnum;
+import com.klybik.management.constant.enums.UserRoleEnum;
 import com.klybik.management.dto.user.CreateUserRequest;
 import com.klybik.management.entity.Employee;
 import com.klybik.management.entity.User;
