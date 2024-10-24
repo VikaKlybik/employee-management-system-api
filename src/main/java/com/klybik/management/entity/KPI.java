@@ -21,6 +21,7 @@ public class KPI {
     private String name;
     private String description;
     private BigDecimal targetValue;
+    @Enumerated(EnumType.ORDINAL)
     private MeasureUnitEnum measureUnit;
     private BigDecimal weight;
     @ManyToOne

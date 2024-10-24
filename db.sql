@@ -79,7 +79,7 @@ CREATE TABLE kpi (
                      name text  NOT NULL,
                      description text  NOT NULL,
                      target_value decimal(10,2)  NOT NULL,
-                     measure_unit int  NOT NULL,
+                     measure_unit smallint  NOT NULL,
                      weight decimal(5,2)  NOT NULL,
                      employee_id uuid  NOT NULL,
                      CONSTRAINT kpi_pk PRIMARY KEY (id)

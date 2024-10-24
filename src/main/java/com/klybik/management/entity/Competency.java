@@ -2,11 +2,8 @@ package com.klybik.management.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,11 +12,9 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+public class Competency {
     @Id
     private UUID id;
-    @ManyToOne
-    private JobTitle jobTitle;
-    @OneToMany(mappedBy = "employee")
-    private List<KPI> kpiList;
+    private String name;
+    private String description;
 }
