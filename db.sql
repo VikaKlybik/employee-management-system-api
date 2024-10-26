@@ -313,6 +313,9 @@ ALTER TABLE "user" ADD CONSTRAINT user_employee
         NOT DEFERRABLE
             INITIALLY IMMEDIATE
 ;
+ALTER TABLE "user"
+    ADD CONSTRAINT unique_employee_id
+        UNIQUE (employee_id);
 
 -- Reference: user_role (table: user)
 ALTER TABLE "user" ADD CONSTRAINT user_role

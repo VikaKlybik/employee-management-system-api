@@ -30,7 +30,7 @@ public class User implements UserDetails {
     private Boolean isFirstStart = Boolean.FALSE;
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Role role;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST)
     private Employee employee;
 
     @Override
