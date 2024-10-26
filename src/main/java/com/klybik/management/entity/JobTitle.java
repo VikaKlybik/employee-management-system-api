@@ -1,9 +1,6 @@
 package com.klybik.management.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -19,6 +16,7 @@ import java.util.UUID;
 @Accessors(chain = true)
 public class JobTitle {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
     private Boolean isLead;

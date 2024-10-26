@@ -16,6 +16,7 @@ import java.util.UUID;
 @Table(name = "kpi_assessment")
 public class KPIAssessment {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private BigDecimal actualValue;
     private LocalDateTime assessmentDate;

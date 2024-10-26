@@ -1,9 +1,6 @@
 package com.klybik.management.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,15 +21,16 @@ import java.util.UUID;
 @Table(name = "\"user\"")
 public class User implements UserDetails {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
     private Boolean isFirstStart = Boolean.FALSE;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Role role;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Employee employee;
 
     @Override

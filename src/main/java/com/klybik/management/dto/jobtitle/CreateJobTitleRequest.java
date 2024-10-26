@@ -16,7 +16,6 @@ public class CreateJobTitleRequest {
     private String name;
     @NotNull
     private Boolean isLead;
-    @NotNull
     private UUID leadId;
     @NotNull
     private UUID departmentId;

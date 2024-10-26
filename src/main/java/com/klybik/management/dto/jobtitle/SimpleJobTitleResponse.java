@@ -12,10 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JobTitleResponse {
+public class SimpleJobTitleResponse {
     private UUID id;
     private String name;
     private Boolean isLead;
-    private SimpleJobTitleResponse lead;
-    private List<SimpleJobTitleResponse> subordinates;
 }

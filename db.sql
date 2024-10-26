@@ -135,7 +135,7 @@ CREATE TABLE survey (
                         name text  NOT NULL DEFAULT uuid_generate_v4(),
                         description text  NOT NULL,
                         created_at timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        status int  NOT NULL,
+                        status smallint  NOT NULL,
                         evaluation_method varchar(255)  NOT NULL,
                         CONSTRAINT survey_pk PRIMARY KEY (id)
 );
