@@ -20,4 +20,6 @@ public class Employee {
     private JobTitle jobTitle;
     @OneToMany(mappedBy = "employee")
     private List<KPI> kpiList;
+    @OneToOne(mappedBy = "employee")
+    private User user;
 }
