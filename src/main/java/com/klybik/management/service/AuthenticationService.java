@@ -24,7 +24,7 @@ public class AuthenticationService {
     public void updatePassword(UpdatePassword request) {
         User user = userService.getUserByEmail(request.getEmail());
 
-        if (!user.getPassword().equals(passwordEncoder.encode(request.getOldPassword()))) {
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new InvalidPasswordException();
         }
 

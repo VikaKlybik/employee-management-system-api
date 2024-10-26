@@ -65,7 +65,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(!Objects.isNull(jwtToken)) {
             return jwtToken;
         }
-        return getJwtTokenFromCookies(request);
+        return null;
+        //return getJwtTokenFromCookies(request);
     }
 
     private String getJwtTokenFromCookies(HttpServletRequest request) {

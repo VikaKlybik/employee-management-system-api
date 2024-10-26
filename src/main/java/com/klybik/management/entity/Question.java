@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,16 +13,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class JobTitle {
+public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
-    private Boolean isLead;
     @ManyToOne
-    private JobTitle lead;
+    private Survey survey;
     @ManyToOne
-    private Department department;
-    @OneToMany(mappedBy = "lead")
-    private List<JobTitle> subordinates;
+    private Competency competency;
 }

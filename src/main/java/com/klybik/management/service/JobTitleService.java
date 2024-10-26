@@ -37,13 +37,11 @@ public class JobTitleService {
                 .name(createJobTitleRequest.getName())
                 .department(departmentService.getDepartmentById(createJobTitleRequest.getDepartmentId()))
                 .isLead(createJobTitleRequest.getIsLead())
-                .lead(jobTitleRepository
-                        .findById(
-                                createJobTitleRequest.getLeadId()
-                        ).orElse(null)
-                )
                 .build();
 
+        if(createJobTitleRequest.getLeadId() != null) {
+            jobTitle.setLead(getJobTitleById(createJobTitleRequest.getLeadId()));
+        }
         return jobTitleRepository.save(jobTitle);
     }
 
@@ -83,8 +81,9 @@ public class JobTitleService {
         if(leadJobTitle.getIsLead().equals(Boolean.FALSE)) {
             throw new SetLeadException(Logic.NOT_LEADER);
         }
+        jobTitle.setLead(leadJobTitle);
         return jobTitleRepository.save(
-                jobTitle.setLead(leadJobTitle)
+                jobTitle
         );
     }
 

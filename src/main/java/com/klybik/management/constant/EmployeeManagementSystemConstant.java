@@ -9,6 +9,8 @@ public interface EmployeeManagementSystemConstant {
             String DEPARTMENT = "Department '%s' not found";
             String KPI = "KPI '%s' not found";
             String COMPETENCY = "Competency '%s' not found";
+            String SURVEY = "Survey '%s' not found";
+            String QUESTION = "Question '%s' not found";
         }
         interface Logic {
             String INVALID_PASSWORD = "Invalid password";
@@ -16,6 +18,9 @@ public interface EmployeeManagementSystemConstant {
             String DELETED_LEAD = "A leader has subordinates. Cannot delete.";
             String NOT_LEADER = "Job title with id '%s' is not leader.";
             String KPI_NOT_BELONGS_TO_EMPLOYEE = "Employee with id '%s' is not belong to the employee list.";
+            String SURVEY_CLOSED = "Survey has already been closed.";
+            String SURVEY_PUBLISHED = "Survey has already been published.";
+            String INVALID_SURVEY_STATUS = "Invalid survey status '%s'";
         }
         interface Duplicate {
             String USER = "User with email = '%s' already exists";

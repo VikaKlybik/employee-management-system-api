@@ -1,9 +1,6 @@
 package com.klybik.management.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
@@ -14,6 +11,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "\"role\"")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

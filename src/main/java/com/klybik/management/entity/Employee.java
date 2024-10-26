@@ -1,9 +1,6 @@
 package com.klybik.management.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
@@ -17,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @ManyToOne
     private JobTitle jobTitle;

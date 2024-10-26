@@ -17,6 +17,7 @@ import java.util.UUID;
 @Table(name = "kpi")
 public class KPI {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String name;
     private String description;
