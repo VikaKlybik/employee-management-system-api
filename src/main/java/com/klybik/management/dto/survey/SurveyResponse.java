@@ -1,31 +1,27 @@
-package com.klybik.management.entity;
+package com.klybik.management.dto.survey;
 
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
-import jakarta.persistence.*;
-import lombok.*;
+import com.klybik.management.dto.question.QuestionResponse;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-public class Survey {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+@NoArgsConstructor
+@Builder
+public class SurveyResponse {
     private UUID id;
     private String name;
     private String description;
     private LocalDateTime createdAt;
-    @Enumerated(EnumType.STRING)
     private EvaluationMethodEnum evaluationMethod;
-    @Enumerated(EnumType.ORDINAL)
     private SurveyStatusEnum status;
-    @OneToMany(mappedBy = "survey", cascade = CascadeType.PERSIST)
-    private List<Question> questions;
+    private List<QuestionResponse> questions;
 }

@@ -38,6 +38,9 @@ public class CompetencyService {
 
     public Competency updateCompetency(UUID id, CreateCompetencyRequest competencyRequest) {
         validateIfCompetencyExistsByName(competencyRequest.getName());
+        Competency competency = getCompetencyById(id);
+        competency.setName(competencyRequest.getName());
+        competency.setDescription(competencyRequest.getDescription());
         return competencyRepository.save(
                 getCompetencyById(id)
         );

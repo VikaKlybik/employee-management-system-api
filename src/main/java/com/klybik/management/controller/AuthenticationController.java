@@ -35,11 +35,11 @@ public class AuthenticationController {
             HttpServletResponse response
     ) {
         AuthenticationResponse authenticationResponse = authenticationService.authentication(request);
-        Cookie cookie = new Cookie("tokens", authenticationResponse.getToken());
-        cookie.setMaxAge(24*60*60);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+//        Cookie cookie = new Cookie("tokens", authenticationResponse.getToken());
+//        cookie.setMaxAge(24*60*60);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath("/");
+//        response.addCookie(cookie);
         return ResponseEntity.ok(authenticationResponse);
     }
 }

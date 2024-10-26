@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +22,7 @@ public class UserService {
     private final RoleService roleService;
     private final JobTitleService jobTitleService;
     private final EmployeeService employeeService;
+    private final PasswordEncoder passwordEncoder;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -49,7 +51,7 @@ public class UserService {
                 .firstName(createUserRequest.getFirstName())
                 .lastName(createUserRequest.getLastName())
                 .email(createUserRequest.getEmail())
-                .password(createUserRequest.getPassword())
+                .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .build();
 
         if (createUserRequest.getRole().equals(UserRoleEnum.EMPLOYEE.getValue())) {
