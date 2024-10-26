@@ -46,7 +46,7 @@ public class SurveyService {
     private Specification<Survey> hasStatus(SurveyStatusEnum surveyStatus) {
         return ((root, query, criteriaBuilder) -> {
             if (surveyStatus == null) {
-                return null;
+                return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get("status"), surveyStatus.ordinal());
         });
@@ -55,9 +55,9 @@ public class SurveyService {
     private Specification<Survey> hasEvaluationMethod(EvaluationMethodEnum evaluationMethod) {
         return ((root, query, criteriaBuilder) -> {
             if (evaluationMethod == null) {
-                return null;
+                return criteriaBuilder.conjunction();
             }
-            return criteriaBuilder.equal(root.get("evaluation_method"), evaluationMethod.ordinal());
+            return criteriaBuilder.equal(root.get("evaluationMethod"), evaluationMethod.ordinal());
         });
     }
 
