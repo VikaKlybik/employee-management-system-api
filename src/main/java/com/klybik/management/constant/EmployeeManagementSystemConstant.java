@@ -11,6 +11,8 @@ public interface EmployeeManagementSystemConstant {
             String COMPETENCY = "Competency '%s' not found";
             String SURVEY = "Survey '%s' not found";
             String QUESTION = "Question '%s' not found";
+            String EMPLOYEE = "Employee '%s' not found";
+            String KPI_PERIOD = "KPI period '%s' not found";
         }
         interface Logic {
             String INVALID_PASSWORD = "Invalid password";
@@ -27,6 +29,7 @@ public interface EmployeeManagementSystemConstant {
             String DEPARTMENT = "Department '%s' already exists";
             String JOB_TITLE = "Job title '%s' already exists in department with id '%s'";
             String COMPETENCY = "Competency '%s' already exists";
+            String KPI = "KPI '%s' already exists";
         }
     }
 

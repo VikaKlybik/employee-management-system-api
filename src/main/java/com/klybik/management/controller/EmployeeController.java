@@ -8,8 +8,11 @@ import com.klybik.management.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/employee")
@@ -24,4 +27,11 @@ public class EmployeeController {
         Page<Employee> employees = employeeService.getAllEmployee(employeeFilterParam);
         return employees.map(employeeMapper::toEmployeeResponse);
     }
+
+    @GetMapping("/{userId}")
+    public EmployeeResponse getEmployeeById(@PathVariable UUID userId) {
+        Employee employee = employeeService.getByUserId(userId);
+        return employeeMapper.toEmployeeResponse(employee);
+    }
+
 }
