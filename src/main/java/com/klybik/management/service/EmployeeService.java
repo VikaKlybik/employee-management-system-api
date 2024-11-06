@@ -62,6 +62,7 @@ public class EmployeeService {
         });
     }
 
+
     public Employee getByUserId(UUID userId) {
         return employeeRepository.findByUserId(userId)
                 .orElseThrow(() -> new EntityNotFoundException(NotFound.EMPLOYEE));
@@ -71,4 +72,5 @@ public class EmployeeService {
         return employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException(NotFound.EMPLOYEE));
     }
+
 }
