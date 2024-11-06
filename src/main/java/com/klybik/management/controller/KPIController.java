@@ -1,8 +1,10 @@
 package com.klybik.management.controller;
 
 import com.klybik.management.dto.kpi.CreateKPIAssessmentRequest;
+import com.klybik.management.dto.kpi.CreateKPIRequest;
 import com.klybik.management.dto.kpi.KPIResponse;
 import com.klybik.management.entity.KPI;
+import com.klybik.management.entity.KPIPeriod;
 import com.klybik.management.entity.User;
 import com.klybik.management.mapper.KPIMapper;
 import com.klybik.management.service.KPIService;
@@ -38,6 +40,13 @@ public class KPIController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public KPIResponse createKPI(@RequestBody @Valid CreateKPIRequest request) {
+        KPI kpi = kpiService.createKPI(request);
+        return kpiMapper.toKPIResponse(kpi);
+    }
+
+    @PostMapping("/assessment/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void createAssessmentForKPI(@AuthenticationPrincipal User user, @RequestBody @Valid CreateKPIAssessmentRequest kpiAssessmentRequest) {
         kpiService.createAssessmentForKPI(user, kpiAssessmentRequest);

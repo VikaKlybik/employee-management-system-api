@@ -12,6 +12,7 @@ import java.util.UUID;
 public class EmployeeFilterParam {
     private UUID jobTitleId;
     private UUID departmentId;
+    private UUID leadId;
     private int pageNumber = 0;
-    private int pageSize = 25;
+    private int pageSize = 10;
 }

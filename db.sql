@@ -45,6 +45,7 @@ CREATE TABLE development_plan (
 -- Table: employee
 CREATE TABLE employee (
                           id uuid  NOT NULL DEFAULT uuid_generate_v4(),
+                          work_since timestamp  NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           job_title_id uuid  NOT NULL,
                           CONSTRAINT employee_pk PRIMARY KEY (id)
 );
@@ -83,6 +84,14 @@ CREATE TABLE kpi (
                      weight decimal(5,2)  NOT NULL,
                      employee_id uuid  NOT NULL,
                      CONSTRAINT kpi_pk PRIMARY KEY (id)
+);
+
+create table kpi_period (
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    start_date date  NOT NULL,
+    end_date date NOT NULL,
+    kpi_id uuid NOT NULL,
+    CONSTRAINT kpi_period_pk PRIMARY KEY (id)
 );
 
 -- Table: kpi_assessment
@@ -258,6 +267,13 @@ ALTER TABLE kpi ADD CONSTRAINT kpi_employee
             INITIALLY IMMEDIATE
 ;
 
+ALTER TABLE IF EXISTS public.kpi
+    ADD CONSTRAINT to_kpi FOREIGN KEY (kpi_id)
+        REFERENCES public.kpi (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID;
+
 -- Reference: passing_evaluated_person (table: passing)
 ALTER TABLE passing ADD CONSTRAINT passing_evaluated_person
     FOREIGN KEY (evaluated_person_id)
@@ -327,4 +343,3 @@ ALTER TABLE "user" ADD CONSTRAINT user_role
 
 INSERT INTO role(name) values ('admin', 'manager', 'employee');
 -- End of file.
-
