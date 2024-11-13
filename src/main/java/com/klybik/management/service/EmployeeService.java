@@ -29,7 +29,6 @@ public class EmployeeService {
         employeeRepository.save(employee);
     }
 
-
     public List<Employee> getAllEmployee(EmployeeFilterParam employeeFilterParam) {
         Specification<Employee> specification = Specification
                 .where(hasJobTitle(employeeFilterParam.getJobTitleId()))

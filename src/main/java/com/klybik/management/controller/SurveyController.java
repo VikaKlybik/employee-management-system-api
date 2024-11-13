@@ -85,6 +85,4 @@ public class SurveyController {
         Survey survey = surveyService.compositeCreateService(fullSurveyCreateRequest);
         return surveyMapper.toSurveyResponse(survey);
     }
-
-
 }

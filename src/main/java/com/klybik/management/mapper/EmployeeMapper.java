@@ -21,6 +21,5 @@ import java.util.List;
 public interface EmployeeMapper {
     @Mapping(source = "jobTitle.department", target = "department")
     EmployeeResponse toEmployeeResponse(Employee employee);
-
     List<EmployeeResponse> toListOfEmployeeResponse(List<Employee> employeeResponses);
 }

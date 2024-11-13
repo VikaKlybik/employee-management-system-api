@@ -41,5 +41,4 @@ public class EmployeeController {
         List<Employee> employees = employeeService.generateDefaultEvaluators(generateDefaultEvaluators);
         return employeeMapper.toListOfEmployeeResponse(employees);
     }
-
 }
