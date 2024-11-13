@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -19,4 +21,6 @@ import org.mapstruct.ReportingPolicy;
 public interface EmployeeMapper {
     @Mapping(source = "jobTitle.department", target = "department")
     EmployeeResponse toEmployeeResponse(Employee employee);
+
+    List<EmployeeResponse> toListOfEmployeeResponse(List<Employee> employeeResponses);
 }
