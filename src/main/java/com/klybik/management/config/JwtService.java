@@ -1,5 +1,6 @@
 package com.klybik.management.config;
 
+import com.klybik.management.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -28,8 +29,15 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(User user) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("firstName", user.getFirstName());
+        extraClaims.put("lastName", user.getLastName());
+        extraClaims.put("email", user.getEmail());
+        extraClaims.put("role", user.getRole().getName());
+        extraClaims.put("isFirstStart", user.getIsFirstStart());
+        extraClaims.put("id", user.getId().toString());
+        return generateToken(extraClaims, user);
     }
 
     public String generateToken(

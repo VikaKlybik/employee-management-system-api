@@ -5,12 +5,17 @@ import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Not
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
 import com.klybik.management.dto.filter.SurveyFilterParam;
+import com.klybik.management.dto.question.CreateQuestionRequest;
+import com.klybik.management.dto.question.UpdateQuestionRequest;
 import com.klybik.management.dto.survey.CreateSurveyRequest;
+import com.klybik.management.dto.survey.FullSurveyCreateRequest;
 import com.klybik.management.dto.survey.UpdateSurveyStatusRequest;
+import com.klybik.management.entity.Competency;
 import com.klybik.management.entity.Question;
 import com.klybik.management.entity.Survey;
 import com.klybik.management.exception.SurveyChangeStatusException;
 import com.klybik.management.exception.handler.LogicDataException;
+import com.klybik.management.repository.QuestionRepository;
 import com.klybik.management.repository.SurveyRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +36,15 @@ import java.util.UUID;
 public class SurveyService {
 
     private final SurveyRepository surveyRepository;
+    private final QuestionRepository questionRepository;
+    private final CompetencyService competencyService;
 
     public Page<Survey> getAllSurvey(SurveyFilterParam filterParam) {
         Specification<Survey> surveySpecification = Specification
                 .where(hasStatus(filterParam.getStatus()))
                 .and(hasEvaluationMethod(filterParam.getEvaluationMethod()));
 
-        Sort sort = Sort.by(Sort.Direction.fromString(filterParam.getDirection()), "created_at");
+        Sort sort = Sort.by(Sort.Direction.fromString(filterParam.getDirection()), "createdAt");
         Pageable pageable = PageRequest.of(filterParam.getPageNumber(), filterParam.getPageSize(), sort);
         return surveyRepository.findAll(surveySpecification, pageable);
     }
@@ -124,5 +131,62 @@ public class SurveyService {
 
         newSurvey.setQuestions(duplicateQuestions);
         return surveyRepository.save(newSurvey);
+    }
+
+    @Transactional
+    public Survey compositeCreateService(FullSurveyCreateRequest fullSurveyCreateRequest) {
+        Survey createdSurvey = surveyRepository.save(Survey.builder()
+                .name(fullSurveyCreateRequest.getName())
+                .description(fullSurveyCreateRequest.getDescription())
+                .status(SurveyStatusEnum.DRAFT)
+                .createdAt(LocalDateTime.now())
+                .evaluationMethod(fullSurveyCreateRequest.getEvaluationMethod())
+                .build());
+
+        fullSurveyCreateRequest.getQuestions().forEach(question ->
+                createQuestion(CreateQuestionRequest.builder()
+                        .surveyId(createdSurvey.getId())
+                        .competencyId(question.getCompetencyId())
+                        .name(question.getName())
+                        .build())
+        );
+        return getSurveyById(createdSurvey.getId());
+    }
+
+    @Transactional
+    public Question createQuestion(CreateQuestionRequest createQuestionRequest) {
+        Survey survey = getSurveyById(createQuestionRequest.getSurveyId());
+        Competency competency = competencyService.getCompetencyById(createQuestionRequest.getCompetencyId());
+
+        validateAbilityToEditSurvey(survey);
+
+        return questionRepository.save(Question.builder()
+                .competency(competency)
+                .name(createQuestionRequest.getName())
+                .survey(survey)
+                .build());
+    }
+
+    public void deleteQuestion(UUID id) {
+        Question question = getQuestionById(id);
+        Survey survey = question.getSurvey();
+        validateAbilityToEditSurvey(survey);
+        questionRepository.delete(question);
+    }
+
+    Question getQuestionById(UUID questionId) {
+        return questionRepository.findById(questionId)
+                .orElseThrow(() -> new EntityNotFoundException(NotFound.SURVEY.formatted(questionId)));
+    }
+
+    public Question updateQuestion(UUID id, UpdateQuestionRequest updateQuestionRequest) {
+        Question question = getQuestionById(id);
+        Survey survey = question.getSurvey();
+        validateAbilityToEditSurvey(survey);
+        Competency competency = competencyService.getCompetencyById(updateQuestionRequest.getCompetencyId());
+
+        question.setName(updateQuestionRequest.getName());
+        question.setCompetency(competency);
+        return questionRepository.save(question);
     }
 }

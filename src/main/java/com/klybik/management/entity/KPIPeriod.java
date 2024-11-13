@@ -3,7 +3,7 @@ package com.klybik.management.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,15 +13,11 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+@Table(name = "kpi_period")
+public class KPIPeriod {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    @ManyToOne
-    private JobTitle jobTitle;
-    @OneToMany(mappedBy = "employee")
-    private List<KPI> kpiList;
-    @OneToOne(mappedBy = "employee")
-    private User user;
-    private LocalDateTime workSince;
+    private LocalDate startDate;
+    private LocalDate endDate;
 }

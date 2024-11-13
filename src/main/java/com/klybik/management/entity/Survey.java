@@ -26,6 +26,6 @@ public class Survey {
     private EvaluationMethodEnum evaluationMethod;
     @Enumerated(EnumType.ORDINAL)
     private SurveyStatusEnum status;
-    @OneToMany(mappedBy = "survey", cascade = CascadeType.PERSIST)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "survey", cascade = CascadeType.PERSIST)
     private List<Question> questions;
 }

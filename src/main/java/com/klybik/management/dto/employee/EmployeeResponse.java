@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 @Builder
 public class EmployeeResponse {
     private UUID id;
+    private LocalDateTime workSince;
     private UserResponse user;
     private JobTitleResponse jobTitle;
     private SimpleDepartmentResponse department;

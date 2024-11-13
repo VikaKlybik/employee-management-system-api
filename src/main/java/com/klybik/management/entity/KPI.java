@@ -29,4 +29,6 @@ public class KPI {
     private Employee employee;
     @OneToMany(mappedBy = "kpi")
     private List<KPIAssessment> kpiAssessments;
+    @ManyToOne
+    private KPIPeriod kpiPeriod;
 }

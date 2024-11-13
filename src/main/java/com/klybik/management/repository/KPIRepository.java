@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface KPIRepository extends JpaRepository<KPI, UUID> {
     List<KPI> findByEmployeeId(UUID employeeId);
+    boolean existsByNameIgnoreCaseAndEmployeeId(String name, UUID employeeId);
 }
