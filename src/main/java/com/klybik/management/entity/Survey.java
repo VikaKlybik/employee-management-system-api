@@ -28,4 +28,6 @@ public class Survey {
     private SurveyStatusEnum status;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "survey", cascade = CascadeType.PERSIST)
     private List<Question> questions;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "survey", cascade = CascadeType.PERSIST)
+    private List<Passing> passingList;
 }

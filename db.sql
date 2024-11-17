@@ -50,19 +50,6 @@ CREATE TABLE employee (
                           CONSTRAINT employee_pk PRIMARY KEY (id)
 );
 
--- Table: evaluated_person
-CREATE TABLE evaluated_person (
-                                  id uuid  NOT NULL,
-                                  employee_id uuid  NOT NULL,
-                                  CONSTRAINT evaluated_person_pk PRIMARY KEY (id)
-);
-
--- Table: evaluators
-CREATE TABLE evaluators (
-                            id uuid  NOT NULL DEFAULT uuid_generate_v4(),
-                            employee_id uuid  NOT NULL,
-                            CONSTRAINT evaluators_pk PRIMARY KEY (id)
-);
 
 -- Table: job_title
 CREATE TABLE job_title (
@@ -109,7 +96,7 @@ CREATE TABLE passing (
                          id uuid  NOT NULL DEFAULT uuid_generate_v4(),
                          is_pass boolean  NOT NULL,
                          evaluated_person_id uuid  NOT NULL,
-                         evaluators_id uuid  NOT NULL,
+                         evaluator_id uuid  NOT NULL,
                          survey_id uuid  NOT NULL,
                          CONSTRAINT passing_pk PRIMARY KEY (id)
 );
@@ -220,16 +207,16 @@ ALTER TABLE employee ADD CONSTRAINT employee_job_title
 ;
 
 -- Reference: evaluated_person_employee (table: evaluated_person)
-ALTER TABLE evaluated_person ADD CONSTRAINT evaluated_person_employee
-    FOREIGN KEY (employee_id)
+ALTER TABLE passing ADD CONSTRAINT evaluated_person_employee
+    FOREIGN KEY (evaluated_person_id)
         REFERENCES employee (id)
         NOT DEFERRABLE
             INITIALLY IMMEDIATE
 ;
 
 -- Reference: evaluators_employee (table: evaluators)
-ALTER TABLE evaluators ADD CONSTRAINT evaluators_employee
-    FOREIGN KEY (employee_id)
+ALTER TABLE passing ADD CONSTRAINT evaluators_employee
+    FOREIGN KEY (evaluator_id)
         REFERENCES employee (id)
         NOT DEFERRABLE
             INITIALLY IMMEDIATE

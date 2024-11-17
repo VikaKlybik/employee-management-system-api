@@ -7,7 +7,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING, uses = QuestionMapper.class)
+@Mapper(
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {
+                QuestionMapper.class,
+                PassingMapper.class
+        }
+)
 public interface SurveyMapper {
     SimpleSurveyResponse toSimpleSurveyResponse(Survey survey);
     SurveyResponse toSurveyResponse(Survey survey);
