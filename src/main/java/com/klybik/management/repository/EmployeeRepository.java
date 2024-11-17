@@ -12,4 +12,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID>, JpaSp
     Optional<Employee> findByUserId(UUID userId);
     List<Employee> findAllByJobTitleIdAndUserIdNot(UUID jobTitle_id, UUID userId);
     List<Employee> findAllByJobTitleLeadId(UUID jobTitleLeadId);
+    List<Employee> findAllByUserIdIn(List<UUID> evaluatorIds);
 }

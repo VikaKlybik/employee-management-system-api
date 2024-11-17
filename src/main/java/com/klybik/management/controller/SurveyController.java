@@ -1,5 +1,6 @@
 package com.klybik.management.controller;
 
+import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
 import com.klybik.management.dto.question.OneQuestionResponse;
@@ -83,6 +84,18 @@ public class SurveyController {
     @ResponseStatus(HttpStatus.CREATED)
     public SurveyResponse compositeCreateSurvey(@RequestBody @Valid FullSurveyCreateRequest fullSurveyCreateRequest) {
         Survey survey = surveyService.compositeCreateService(fullSurveyCreateRequest);
+        return surveyMapper.toSurveyResponse(survey);
+    }
+
+    @PostMapping("/evaluators")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void setSurveyEvaluators(@RequestBody CreateEvaluatorsRequest createEvaluatorsRequest) {
+        surveyService.createEvaluators(createEvaluatorsRequest);
+    }
+
+    @PostMapping("/{id}/start")
+    public SurveyResponse publishSurvey(@PathVariable UUID id) {
+        Survey survey = surveyService.publishSurvey(id);
         return surveyMapper.toSurveyResponse(survey);
     }
 }

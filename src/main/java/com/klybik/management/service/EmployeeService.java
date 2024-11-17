@@ -147,4 +147,8 @@ public class EmployeeService {
     private List<Employee> getSubordinates(Employee employee) {
         return employeeRepository.findAllByJobTitleLeadId(employee.getJobTitle().getId());
     }
+
+    public List<Employee> getAllEmployeeInListOfId(List<UUID> evaluatorIds) {
+        return employeeRepository.findAllByUserIdIn(evaluatorIds);
+    }
 }

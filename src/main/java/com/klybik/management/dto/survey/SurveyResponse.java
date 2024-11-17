@@ -2,6 +2,7 @@ package com.klybik.management.dto.survey;
 
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
+import com.klybik.management.dto.evaluators.PassingResponse;
 import com.klybik.management.dto.question.QuestionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,4 +25,5 @@ public class SurveyResponse {
     private EvaluationMethodEnum evaluationMethod;
     private SurveyStatusEnum status;
     private List<QuestionResponse> questions;
+    private List<PassingResponse> passingList;
 }

@@ -4,17 +4,18 @@ import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Log
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
+import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
+import com.klybik.management.dto.evaluators.PassingRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
 import com.klybik.management.dto.question.UpdateQuestionRequest;
 import com.klybik.management.dto.survey.CreateSurveyRequest;
 import com.klybik.management.dto.survey.FullSurveyCreateRequest;
 import com.klybik.management.dto.survey.UpdateSurveyStatusRequest;
-import com.klybik.management.entity.Competency;
-import com.klybik.management.entity.Question;
-import com.klybik.management.entity.Survey;
+import com.klybik.management.entity.*;
 import com.klybik.management.exception.SurveyChangeStatusException;
 import com.klybik.management.exception.handler.LogicDataException;
+import com.klybik.management.repository.PassingRepository;
 import com.klybik.management.repository.QuestionRepository;
 import com.klybik.management.repository.SurveyRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -38,6 +39,8 @@ public class SurveyService {
     private final SurveyRepository surveyRepository;
     private final QuestionRepository questionRepository;
     private final CompetencyService competencyService;
+    private final EmployeeService employeeService;
+    private final PassingRepository passingRepository;
 
     public Page<Survey> getAllSurvey(SurveyFilterParam filterParam) {
         Specification<Survey> surveySpecification = Specification
@@ -188,5 +191,36 @@ public class SurveyService {
         question.setName(updateQuestionRequest.getName());
         question.setCompetency(competency);
         return questionRepository.save(question);
+    }
+
+    @Transactional
+    public void createEvaluators(CreateEvaluatorsRequest createEvaluatorsRequest) {
+        Survey survey = getSurveyById(createEvaluatorsRequest.getSurveyId());
+
+        for (PassingRequest passingRequest : createEvaluatorsRequest.getPassing()) {
+            Employee evaluated = employeeService.getByUserId(passingRequest.getEvaluatedId());
+            List<Employee> evaluators = employeeService.getAllEmployeeInListOfId(passingRequest.getEvaluatorIds());
+            List<Passing> passingList = evaluators.stream()
+                    .map(evaluator -> Passing.builder()
+                            .isPass(Boolean.FALSE)
+                            .evaluatedPerson(evaluated)
+                            .evaluator(evaluator)
+                            .survey(survey)
+                            .build())
+                    .toList();
+            passingRepository.saveAll(passingList);
+        }
+        survey.setStatus(SurveyStatusEnum.PUBLISHED);
+        surveyRepository.save(survey);
+    }
+
+    public Survey publishSurvey(UUID id) {
+        Survey survey = getSurveyById(id);
+        if(survey.getStatus() != SurveyStatusEnum.DRAFT) {
+            throw new SurveyChangeStatusException(Logic.SURVEY_PUBLISHED);
+        }
+        survey.setStatus(SurveyStatusEnum.PUBLISHED);
+        // add logic with notification to user
+        return surveyRepository.save(survey);
     }
 }
