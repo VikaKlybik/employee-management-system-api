@@ -13,6 +13,7 @@ public interface EmployeeManagementSystemConstant {
             String QUESTION = "Question '%s' not found";
             String EMPLOYEE = "Employee '%s' not found";
             String KPI_PERIOD = "KPI period '%s' not found";
+            String DEVELOPMENT_PLAN = "Development plan '%s' not found";
         }
         interface Logic {
             String INVALID_PASSWORD = "Invalid password";

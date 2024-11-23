@@ -228,11 +228,8 @@ public class SurveyService {
         return surveyRepository.save(survey);
     }
 
-    public List<Survey> getAllSurveyToBePassForEmployee(UUID id) {
-        List<Passing> passingList = passingRepository.findAllByEvaluatorUserIdAndIsPassFalse(id);
-        return passingList.stream()
-                .map(Passing::getSurvey)
-                .toList();
+    public List<Passing> getAllSurveyToBePassForEmployee(UUID id) {
+        return passingRepository.findAllByEvaluatorUserIdAndIsPassFalse(id);
     }
 
     @Transactional
