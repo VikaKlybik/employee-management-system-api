@@ -2,6 +2,7 @@ package com.klybik.management.controller;
 
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryResponse;
+import com.klybik.management.dto.employee.EmployeeResponse;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.evaluators.PassingResponse;
 import com.klybik.management.dto.filter.SurveyFilterParam;
@@ -123,9 +124,9 @@ public class SurveyController {
     }
 
     @GetMapping("/to-be-pass/employee/{id}")
-    public List<SimpleSurveyResponse> getAllToBePassSurvey(@PathVariable UUID id) {
-        List<Survey> surveys = surveyService.getAllSurveyToBePassForEmployee(id);
-        return surveyMapper.toListSimpleSurveyResponses(surveys);
+    public List<FullPassingResponse> getAllToBePassSurvey(@PathVariable UUID id) {
+        List<Passing> passingList = surveyService.getAllSurveyToBePassForEmployee(id);
+        return passingMapper.toListFullPassingResponse(passingList);
     }
 
     @GetMapping("/passing/{id}")

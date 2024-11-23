@@ -33,7 +33,7 @@ CREATE TABLE department (
 -- Table: development_plan
 CREATE TABLE development_plan (
                                   id uuid  NOT NULL DEFAULT uuid_generate_v4(),
-                                  status int  NOT NULL,
+                                  status smallint  NOT NULL,
                                   comments text  NOT NULL,
                                   goal text  NOT NULL,
                                   survey_id uuid  NOT NULL,

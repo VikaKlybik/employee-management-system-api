@@ -20,4 +20,5 @@ public interface PassingMapper {
     PassingResponse toPassingResponse(Passing passing);
     List<PassingResponse> toListPassingResponse(List<Passing> passingList);
     FullPassingResponse toFullPassingResponse(Passing passing);
+    List<FullPassingResponse> toListFullPassingResponse(List<Passing> passingList);
 }
