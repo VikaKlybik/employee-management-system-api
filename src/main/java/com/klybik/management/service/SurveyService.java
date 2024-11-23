@@ -4,20 +4,20 @@ import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Log
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
+import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.evaluators.PassingRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
 import com.klybik.management.dto.question.UpdateQuestionRequest;
 import com.klybik.management.dto.survey.CreateSurveyRequest;
+import com.klybik.management.dto.survey.FullPassSurveyRequest;
 import com.klybik.management.dto.survey.FullSurveyCreateRequest;
 import com.klybik.management.dto.survey.UpdateSurveyStatusRequest;
 import com.klybik.management.entity.*;
 import com.klybik.management.exception.SurveyChangeStatusException;
 import com.klybik.management.exception.handler.LogicDataException;
-import com.klybik.management.repository.PassingRepository;
-import com.klybik.management.repository.QuestionRepository;
-import com.klybik.management.repository.SurveyRepository;
+import com.klybik.management.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,9 +28,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,8 @@ public class SurveyService {
     private final CompetencyService competencyService;
     private final EmployeeService employeeService;
     private final PassingRepository passingRepository;
+    private final ResponseRepository responseRepository;
+    private final AssessmentSummaryRepository assessmentSummaryRepository;
 
     public Page<Survey> getAllSurvey(SurveyFilterParam filterParam) {
         Specification<Survey> surveySpecification = Specification
@@ -177,7 +181,7 @@ public class SurveyService {
         questionRepository.delete(question);
     }
 
-    Question getQuestionById(UUID questionId) {
+    public Question getQuestionById(UUID questionId) {
         return questionRepository.findById(questionId)
                 .orElseThrow(() -> new EntityNotFoundException(NotFound.SURVEY.formatted(questionId)));
     }
@@ -216,11 +220,87 @@ public class SurveyService {
 
     public Survey publishSurvey(UUID id) {
         Survey survey = getSurveyById(id);
-        if(survey.getStatus() != SurveyStatusEnum.DRAFT) {
+        if (survey.getStatus() != SurveyStatusEnum.DRAFT) {
             throw new SurveyChangeStatusException(Logic.SURVEY_PUBLISHED);
         }
         survey.setStatus(SurveyStatusEnum.PUBLISHED);
         // add logic with notification to user
         return surveyRepository.save(survey);
+    }
+
+    public List<Survey> getAllSurveyToBePassForEmployee(UUID id) {
+        List<Passing> passingList = passingRepository.findAllByEvaluatorUserIdAndIsPassFalse(id);
+        return passingList.stream()
+                .map(Passing::getSurvey)
+                .toList();
+    }
+
+    @Transactional
+    public void passSurvey(FullPassSurveyRequest listOfPassSurveyRequest) {
+        Passing passing = passingRepository.findById(listOfPassSurveyRequest.getPassingId())
+                .orElseThrow(() -> new EntityNotFoundException(NotFound.SURVEY.formatted(listOfPassSurveyRequest.getPassingId())));
+
+        List<Response> responses = listOfPassSurveyRequest
+                .getResponses()
+                .stream()
+                .map(response ->
+                        Response.builder()
+                                .question(getQuestionById(response.getQuestionId()))
+                                .mark(response.getMark())
+                                .evaluatedEmployee(passing.getEvaluatedPerson())
+                                .isSelfAssessment(passing.getEvaluatedPerson().getId().equals(passing.getEvaluator().getId()))
+                                .build()
+                )
+                .toList();
+        passing.setIsPass(Boolean.TRUE);
+        passingRepository.save(passing);
+        responseRepository.saveAll(responses);
+    }
+
+    public Passing getPassingById(UUID id) {
+        return passingRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(NotFound.SURVEY.formatted(id)));
+    }
+
+    @Transactional
+    public Survey closeSurvey(UUID id) {
+        //TODO logic for creating devolpement plan
+
+        Survey survey = getSurveyById(id);
+
+        List<AssessmentSummary> assessmentSummaryList = survey.getQuestions().stream()
+                .flatMap(question -> question.getResponses().stream()
+                        .collect(Collectors.groupingBy(Response::getEvaluatedEmployee))
+                        .entrySet().stream()
+                        .map(entry -> {
+                            Employee evaluatedEmployee = entry.getKey();
+                            List<Response> responses = entry.getValue();
+
+                            BigDecimal assessmentSummary = responses.stream()
+                                    .map(response -> BigDecimal.valueOf(response.getMark()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                    .divide(new BigDecimal(responses.size()), 2, RoundingMode.HALF_UP);
+
+                            return AssessmentSummary.builder()
+                                    .assessmentSummary(assessmentSummary)
+                                    .totalReviews(responses.size())
+                                    .survey(survey)
+                                    .employee(evaluatedEmployee)
+                                    .competency(question.getCompetency())
+                                    .build();
+                        }))
+                .collect(Collectors.toList());
+
+        assessmentSummaryRepository.saveAll(assessmentSummaryList);
+
+        survey.setStatus(SurveyStatusEnum.CLOSED);
+        return surveyRepository.save(survey);
+    }
+
+    public List<AssessmentSummary> getAssessmentSummary(AssessmentSummaryRequest assessmentSummaryRequest) {
+        return assessmentSummaryRepository.findByEmployeeUserIdAndSurveyId(
+                assessmentSummaryRequest.getUserId(),
+                assessmentSummaryRequest.getSurveyId()
+        );
     }
 }

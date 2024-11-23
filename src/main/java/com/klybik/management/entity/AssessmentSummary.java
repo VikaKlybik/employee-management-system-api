@@ -2,9 +2,8 @@ package com.klybik.management.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.Accessors;
 
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -13,16 +12,16 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
-public class Question {
+public class AssessmentSummary {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String name;
+    private BigDecimal assessmentSummary;
+    private Integer totalReviews;
     @ManyToOne
-    private Survey survey;
+    private Employee employee;
     @ManyToOne
     private Competency competency;
-    @OneToMany(mappedBy = "question")
-    private List<Response> responses;
+    @ManyToOne
+    private Survey survey;
 }
