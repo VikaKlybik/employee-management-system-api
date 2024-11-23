@@ -115,6 +115,8 @@ CREATE TABLE response (
                           id uuid  NOT NULL DEFAULT uuid_generate_v4(),
                           question_id uuid  NOT NULL,
                           mark int  NOT NULL,
+                          evaluated_employee_id uuid NOT NULL,
+                          is_self_assessment boolean,
                           CONSTRAINT response_pk PRIMARY KEY (id)
 );
 
@@ -305,6 +307,13 @@ ALTER TABLE question ADD CONSTRAINT question_survey
 ALTER TABLE response ADD CONSTRAINT response_question
     FOREIGN KEY (question_id)
         REFERENCES question (id)
+        NOT DEFERRABLE
+            INITIALLY IMMEDIATE
+;
+
+ALTER TABLE response ADD CONSTRAINT response_evaluated_employee
+    FOREIGN KEY (evaluated_employee_id)
+        REFERENCES employee (id)
         NOT DEFERRABLE
             INITIALLY IMMEDIATE
 ;
