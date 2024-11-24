@@ -17,4 +17,5 @@ public class UserResponse {
     private String email;
     private Boolean isFirstStart;
     private Role role;
+    private String profilePhotoUrl;
 }

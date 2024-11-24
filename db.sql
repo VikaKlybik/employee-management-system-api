@@ -148,6 +148,7 @@ CREATE TABLE "user" (
                         employee_id uuid  NULL,
                         role_id uuid  NOT NULL,
                         is_first_start boolean NOT NULL,
+                        profile_photo_url text,
                         CONSTRAINT user_pk PRIMARY KEY (id)
 );
 

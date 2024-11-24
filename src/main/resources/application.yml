@@ -14,5 +14,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+integration:
+  cloudinary:
+    url: ${CLOUDINARY_URL}
+
 server:
   port: 8080

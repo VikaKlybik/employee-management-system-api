@@ -10,7 +10,12 @@ import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -32,5 +37,14 @@ public class UserController {
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         User user = userService.createUser(createUserRequest);
         return userMapper.toUserResponse(user);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @RequestMapping(
+            path = "/upload/{id}",
+            method = RequestMethod.POST,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadProfileImage(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
+        userService.uploadImageToUser(id, file);
     }
 }

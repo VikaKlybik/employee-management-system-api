@@ -48,7 +48,9 @@ public class DevelopmentPlanService {
 
     public DevelopmentPlan updateStatus(UpdateStatusDevelopmentPlanStatusRequest planStatusRequest) {
         DevelopmentPlan developmentPlan = developmentPlanRepository.findById(planStatusRequest.getDevelopmentPlanId())
-                .orElseThrow(() -> new EntityNotFoundException(NotFound.DEVELOPMENT_PLAN));
+                .orElseThrow(() -> new EntityNotFoundException(NotFound.DEVELOPMENT_PLAN.formatted(
+                        planStatusRequest.getDevelopmentPlanId()))
+                );
         developmentPlan.setStatus(developmentPlan.getStatus());
         return developmentPlanRepository.save(developmentPlan);
     }
