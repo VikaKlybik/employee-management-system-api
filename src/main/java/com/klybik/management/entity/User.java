@@ -28,6 +28,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private Boolean isFirstStart = Boolean.FALSE;
+    private String profilePhotoUrl;
     @ManyToOne(cascade = CascadeType.PERSIST)
     private Role role;
     @OneToOne(cascade = CascadeType.PERSIST)
