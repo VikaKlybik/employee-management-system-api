@@ -1,5 +1,6 @@
 package com.klybik.management.entity;
 
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,8 @@ public class AssessmentSummary {
     private UUID id;
     private BigDecimal assessmentSummary;
     private Integer totalReviews;
+    @Enumerated(EnumType.STRING)
+    private EvaluatorTypeEnum evaluatorType;
     @ManyToOne
     private Employee employee;
     @ManyToOne

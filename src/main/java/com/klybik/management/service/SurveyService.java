@@ -3,8 +3,9 @@ package com.klybik.management.service;
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Logic;
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.constant.enums.EvaluationMethodEnum;
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
-import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
+import com.klybik.management.dto.assessementSummary.*;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.evaluators.PassingRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
@@ -17,12 +18,10 @@ import com.klybik.management.dto.survey.UpdateSurveyStatusRequest;
 import com.klybik.management.entity.*;
 import com.klybik.management.exception.SurveyChangeStatusException;
 import com.klybik.management.exception.handler.LogicDataException;
+import com.klybik.management.mapper.AssessmentSummaryMapper;
 import com.klybik.management.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,7 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,15 +45,15 @@ public class SurveyService {
     private final PassingRepository passingRepository;
     private final ResponseRepository responseRepository;
     private final AssessmentSummaryRepository assessmentSummaryRepository;
+    private final AssessmentSummaryMapper assessmentSummaryMapper;
 
-    public Page<Survey> getAllSurvey(SurveyFilterParam filterParam) {
+    public List<Survey> getAllSurvey(SurveyFilterParam filterParam) {
         Specification<Survey> surveySpecification = Specification
                 .where(hasStatus(filterParam.getStatus()))
                 .and(hasEvaluationMethod(filterParam.getEvaluationMethod()));
 
-        Sort sort = Sort.by(Sort.Direction.fromString(filterParam.getDirection()), "createdAt");
-        Pageable pageable = PageRequest.of(filterParam.getPageNumber(), filterParam.getPageSize(), sort);
-        return surveyRepository.findAll(surveySpecification, pageable);
+        Sort sort = Sort.by(Sort.Direction.fromString("desc"), "createdAt");
+        return surveyRepository.findAll(surveySpecification, sort);
     }
 
 
@@ -205,12 +205,34 @@ public class SurveyService {
             Employee evaluated = employeeService.getByUserId(passingRequest.getEvaluatedId());
             List<Employee> evaluators = employeeService.getAllEmployeeInListOfId(passingRequest.getEvaluatorIds());
             List<Passing> passingList = evaluators.stream()
-                    .map(evaluator -> Passing.builder()
-                            .isPass(Boolean.FALSE)
-                            .evaluatedPerson(evaluated)
-                            .evaluator(evaluator)
-                            .survey(survey)
-                            .build())
+                    .map(evaluator -> {
+                        EvaluatorTypeEnum evaluatorType = null;
+                        if (evaluated.getId().equals(evaluator.getId())) {
+                            evaluatorType = EvaluatorTypeEnum.SELF;
+                        } else if (evaluator.getJobTitle().getId().equals(evaluated.getJobTitle().getId())) {
+                            evaluatorType = EvaluatorTypeEnum.COLLEAGUE;
+                        }
+                        if (evaluatorType == null) {
+                            if (evaluator.getJobTitle().getLead() != null &&
+                                    evaluator.getJobTitle().getLead().getId().equals(evaluated.getJobTitle().getId())) {
+                                evaluatorType = EvaluatorTypeEnum.SUBORDINATE;
+                            } else if (evaluated.getJobTitle().getLead() != null &&
+                                    evaluated.getJobTitle().getLead().getId().equals(evaluator.getJobTitle().getId())) {
+                                evaluatorType = EvaluatorTypeEnum.LEAD;
+                            }
+                        }
+                        if (evaluatorType == null) {
+                            evaluatorType = EvaluatorTypeEnum.COLLEAGUE;
+                        }
+
+                        return Passing.builder()
+                                .isPass(Boolean.FALSE)
+                                .evaluatedPerson(evaluated)
+                                .evaluator(evaluator)
+                                .evaluatorType(evaluatorType)
+                                .survey(survey)
+                                .build();
+                    })
                     .toList();
             passingRepository.saveAll(passingList);
         }
@@ -245,7 +267,7 @@ public class SurveyService {
                                 .question(getQuestionById(response.getQuestionId()))
                                 .mark(response.getMark())
                                 .evaluatedEmployee(passing.getEvaluatedPerson())
-                                .isSelfAssessment(passing.getEvaluatedPerson().getId().equals(passing.getEvaluator().getId()))
+                                .evaluatorType(passing.getEvaluatorType())
                                 .build()
                 )
                 .toList();
@@ -265,39 +287,82 @@ public class SurveyService {
 
         Survey survey = getSurveyById(id);
 
-        List<AssessmentSummary> assessmentSummaryList = survey.getQuestions().stream()
-                .flatMap(question -> question.getResponses().stream()
-                        .collect(Collectors.groupingBy(Response::getEvaluatedEmployee))
-                        .entrySet().stream()
-                        .map(entry -> {
-                            Employee evaluatedEmployee = entry.getKey();
-                            List<Response> responses = entry.getValue();
+        List<AssessmentSummary> assessmentSummaries = survey.getQuestions().stream()
+                .flatMap(question -> question.getResponses().stream())
+                .collect(Collectors.groupingBy(
+                        Response::getEvaluatedEmployee,
+                        Collectors.groupingBy(
+                                Response::getEvaluatorType,
+                                Collectors.groupingBy(
+                                        response -> response.getQuestion().getCompetency()
+                                )
+                        )
+                )).entrySet().stream()
+                .flatMap(employeeEntry -> employeeEntry.getValue().entrySet().stream()
+                        .flatMap(evaluatorTypeEntry -> evaluatorTypeEntry.getValue().entrySet().stream()
+                                .map(competencyEntry -> {
+                                            Employee evaluatedEmployee = employeeEntry.getKey();
+                                            EvaluatorTypeEnum evaluatorType = evaluatorTypeEntry.getKey();
+                                            Competency competency = competencyEntry.getKey();
+                                            List<Response> responses = competencyEntry.getValue();
 
-                            BigDecimal assessmentSummary = responses.stream()
-                                    .map(response -> BigDecimal.valueOf(response.getMark()))
-                                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                                    .divide(new BigDecimal(responses.size()), 2, RoundingMode.HALF_UP);
+                                            BigDecimal assessmentSummary = responses.stream()
+                                                    .map(response -> BigDecimal.valueOf(response.getMark()))
+                                                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                                    .divide(new BigDecimal(responses.size()), 2, RoundingMode.HALF_UP);
 
-                            return AssessmentSummary.builder()
-                                    .assessmentSummary(assessmentSummary)
-                                    .totalReviews(responses.size())
-                                    .survey(survey)
-                                    .employee(evaluatedEmployee)
-                                    .competency(question.getCompetency())
-                                    .build();
-                        }))
-                .collect(Collectors.toList());
-
-        assessmentSummaryRepository.saveAll(assessmentSummaryList);
+                                            return AssessmentSummary.builder()
+                                                    .assessmentSummary(assessmentSummary)
+                                                    .totalReviews(responses.size())
+                                                    .survey(survey)
+                                                    .employee(evaluatedEmployee)
+                                                    .competency(competency)
+                                                    .evaluatorType(evaluatorType)
+                                                    .build();
+                                        }
+                                )
+                        )
+                )
+                .toList();
+        assessmentSummaryRepository.saveAll(assessmentSummaries);
 
         survey.setStatus(SurveyStatusEnum.CLOSED);
         return surveyRepository.save(survey);
     }
 
-    public List<AssessmentSummary> getAssessmentSummary(AssessmentSummaryRequest assessmentSummaryRequest) {
-        return assessmentSummaryRepository.findByEmployeeUserIdAndSurveyId(
+    public AssessmentStatsResponse getAssessmentSummary(AssessmentSummaryRequest assessmentSummaryRequest) {
+        List<AssessmentSummary> assessmentSummaries = assessmentSummaryRepository.findByEmployeeUserIdAndSurveyId(
                 assessmentSummaryRequest.getUserId(),
                 assessmentSummaryRequest.getSurveyId()
         );
+
+        return switch (assessmentSummaryRequest.getStatisticType()) {
+            case CHART -> null;
+            case TABLE -> assessmentStatsAsTableResponse(assessmentSummaries);
+        };
+    }
+
+    private AssessmentStatsAsTableResponse assessmentStatsAsTableResponse(List<AssessmentSummary> assessmentSummaryList) {
+        return AssessmentStatsAsTableResponse.builder()
+                .assessmentsColleague(getAllByEvaluatorType(assessmentSummaryList, EvaluatorTypeEnum.COLLEAGUE))
+                .assessmentsLead(getAllByEvaluatorType(assessmentSummaryList, EvaluatorTypeEnum.LEAD))
+                .assessmentsSubordinate(getAllByEvaluatorType(assessmentSummaryList, EvaluatorTypeEnum.SUBORDINATE))
+                .assessmentsSelf(getAllByEvaluatorType(assessmentSummaryList, EvaluatorTypeEnum.SELF))
+                .build();
+    }
+
+    private List<AssessmentSummaryResponse> getAllByEvaluatorType(List<AssessmentSummary> assessmentSummaries, EvaluatorTypeEnum evaluatorType) {
+        return assessmentSummaryMapper.toAssessmentSummaryResponseList(assessmentSummaries.stream()
+                .filter((assessmentSummary -> assessmentSummary.getEvaluatorType().equals(evaluatorType)))
+                .toList());
+    }
+
+    public List<Competency> getUniqueCompetencyForSurvey(UUID id) {
+        Survey survey = getSurveyById(id);
+        return survey.getQuestions()
+                .stream()
+                .map(Question::getCompetency)
+                .distinct()
+                .toList();
     }
 }

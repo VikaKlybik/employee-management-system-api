@@ -12,7 +12,4 @@ import lombok.NoArgsConstructor;
 public class SurveyFilterParam {
     private SurveyStatusEnum status;
     private EvaluationMethodEnum evaluationMethod;
-    private int pageNumber = 0;
-    private int pageSize = 10;
-    private String direction = "asc";
 }

@@ -1,5 +1,6 @@
 package com.klybik.management.dto.assessementSummary;
 
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import com.klybik.management.entity.Competency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,4 +17,5 @@ public class AssessmentSummaryResponse {
     private BigDecimal assessmentSummary;
     private Integer totalReviews;
     private Competency competency;
+    private EvaluatorTypeEnum evaluatorType;
 }

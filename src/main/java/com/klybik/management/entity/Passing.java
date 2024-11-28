@@ -1,5 +1,6 @@
 package com.klybik.management.entity;
 
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,8 @@ public class Passing {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private Boolean isPass;
+    @Enumerated(EnumType.STRING)
+    private EvaluatorTypeEnum evaluatorType;
     @ManyToOne
     @JoinColumn(name = "evaluated_person_id")
     private Employee evaluatedPerson;
