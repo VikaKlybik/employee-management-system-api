@@ -1,5 +1,6 @@
 package com.klybik.management.dto.evaluators;
 
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import com.klybik.management.dto.employee.EmployeeResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public class PassingResponse {
     private UUID id;
     private Boolean isPass;
+    private EvaluatorTypeEnum evaluatorType;
     private EmployeeResponse evaluatedPerson;
     private EmployeeResponse evaluator;
 }

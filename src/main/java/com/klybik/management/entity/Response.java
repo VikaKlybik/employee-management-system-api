@@ -1,5 +1,6 @@
 package com.klybik.management.entity;
 
+import com.klybik.management.constant.enums.EvaluatorTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -18,7 +19,8 @@ public class Response {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private Integer mark;
-    private Boolean isSelfAssessment;
+    @Enumerated(EnumType.STRING)
+    private EvaluatorTypeEnum evaluatorType;
     @ManyToOne
     private Question question;
     @ManyToOne

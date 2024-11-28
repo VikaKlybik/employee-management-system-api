@@ -1,29 +1,24 @@
 package com.klybik.management.controller;
 
+import com.klybik.management.dto.assessementSummary.AssessmentStatsAsTableResponse;
+import com.klybik.management.dto.assessementSummary.AssessmentStatsResponse;
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryResponse;
-import com.klybik.management.dto.employee.EmployeeResponse;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
-import com.klybik.management.dto.evaluators.PassingResponse;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
 import com.klybik.management.dto.question.OneQuestionResponse;
 import com.klybik.management.dto.question.UpdateQuestionRequest;
 import com.klybik.management.dto.survey.*;
-import com.klybik.management.entity.AssessmentSummary;
-import com.klybik.management.entity.Passing;
-import com.klybik.management.entity.Question;
-import com.klybik.management.entity.Survey;
+import com.klybik.management.entity.*;
 import com.klybik.management.mapper.AssessmentSummaryMapper;
 import com.klybik.management.mapper.PassingMapper;
 import com.klybik.management.mapper.QuestionMapper;
 import com.klybik.management.mapper.SurveyMapper;
-import com.klybik.management.repository.AssessmentSummaryRepository;
 import com.klybik.management.service.SurveyService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,9 +38,9 @@ public class SurveyController {
     private final AssessmentSummaryMapper assessmentSummaryMapper;
 
     @GetMapping
-    public Page<SimpleSurveyResponse> getAllSurvey(SurveyFilterParam filterParam) {
-        Page<Survey> surveys = surveyService.getAllSurvey(filterParam);
-        return surveys.map(surveyMapper::toSimpleSurveyResponse);
+    public List<SimpleSurveyResponse> getAllSurvey(SurveyFilterParam filterParam) {
+        List<Survey> surveys = surveyService.getAllSurvey(filterParam);
+        return surveyMapper.toListSimpleSurveyResponses(surveys);
     }
 
     @GetMapping("/{id}")
@@ -136,8 +131,12 @@ public class SurveyController {
     }
 
     @PostMapping("/passing/get/assessment-summary")
-    public List<AssessmentSummaryResponse> getAssessmentSummary(@RequestBody AssessmentSummaryRequest assessmentSummaryRequest) {
-        List<AssessmentSummary> assessmentSummaryList = surveyService.getAssessmentSummary(assessmentSummaryRequest);
-        return assessmentSummaryMapper.toAssessmentSummaryResponseList(assessmentSummaryList);
+    public AssessmentStatsResponse getAssessmentSummary(@RequestBody AssessmentSummaryRequest assessmentSummaryRequest) {
+        return surveyService.getAssessmentSummary(assessmentSummaryRequest);
+    }
+
+    @GetMapping("/{id}/competency")
+    public List<Competency> getUniqueCompetencyForSurvey(@PathVariable UUID id) {
+        return surveyService.getUniqueCompetencyForSurvey(id);
     }
 }

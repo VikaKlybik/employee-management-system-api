@@ -14,6 +14,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Competency {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

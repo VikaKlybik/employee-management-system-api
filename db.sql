@@ -12,6 +12,7 @@ CREATE TABLE assessment_summary (
                                     employee_id uuid  NOT NULL,
                                     competency_id uuid  NOT NULL,
                                     survey_id uuid  NOT NULL,
+                                    evaluator_type varchar(255)  NOT NULL,
                                     CONSTRAINT assessment_summary_pk PRIMARY KEY (id)
 );
 
@@ -98,6 +99,7 @@ CREATE TABLE passing (
                          evaluated_person_id uuid  NOT NULL,
                          evaluator_id uuid  NOT NULL,
                          survey_id uuid  NOT NULL,
+                         evaluator_type varchar(255)  NOT NULL,
                          CONSTRAINT passing_pk PRIMARY KEY (id)
 );
 
@@ -116,7 +118,7 @@ CREATE TABLE response (
                           question_id uuid  NOT NULL,
                           mark int  NOT NULL,
                           evaluated_employee_id uuid NOT NULL,
-                          is_self_assessment boolean,
+                          evaluator_type varchar(255)  NOT NULL,
                           CONSTRAINT response_pk PRIMARY KEY (id)
 );
 
