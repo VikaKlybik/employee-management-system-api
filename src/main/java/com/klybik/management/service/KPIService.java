@@ -1,5 +1,6 @@
 package com.klybik.management.service;
 
+import com.klybik.management.dto.filter.KPIFilterParam;
 import com.klybik.management.dto.kpi.CreateKPIAssessmentRequest;
 import com.klybik.management.dto.kpi.CreateKPIRequest;
 import com.klybik.management.entity.*;
@@ -8,6 +9,7 @@ import com.klybik.management.repository.KPIAssessmentRepository;
 import com.klybik.management.repository.KPIPeriodRepository;
 import com.klybik.management.repository.KPIRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Dup
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +33,8 @@ public class KPIService {
     private final KPIPeriodRepository kpiPeriodRepository;
     private final EmployeeService employeeService;
 
-    public List<KPI> getKPIForEmployee(UUID employeeId) {
-        return kpiRepository.findByEmployeeId(employeeId);
+    public List<KPI> getKPIForEmployee(UUID employeeId, KPIFilterParam kpiFilterParam) {
+        return kpiRepository.findByEmployeeIdAndKpiPeriodId(employeeId, kpiFilterParam.getKpiPeriodId());
     }
 
     public KPI getKPIById(UUID id) {
@@ -58,24 +61,31 @@ public class KPIService {
         kpiAssessmentRepository.save(kpiAssessment);
     }
 
-    public KPI createKPI(CreateKPIRequest request) {
-        KPIPeriod kpiPeriod = kpiPeriodRepository.findById(request.getKpiPeriodId())
-                .orElseThrow(() -> new EntityNotFoundException(NotFound.KPI_PERIOD.formatted(request.getKpiPeriodId())));
-        Employee employee = employeeService.getByEmployeeId(request.getEmployeeId());
+    public List<KPI> createKPIs(@Valid List<CreateKPIRequest> requests) {
+        List<KPI> kpiList = new ArrayList<>();
+        for(CreateKPIRequest request: requests) {
+            KPIPeriod kpiPeriod = kpiPeriodRepository.findById(request.getKpiPeriodId())
+                    .orElseThrow(() -> new EntityNotFoundException(NotFound.KPI_PERIOD.formatted(request.getKpiPeriodId())));
+            Employee employee = employeeService.getByEmployeeId(request.getEmployeeId());
 
-        if(kpiRepository.existsByNameIgnoreCaseAndEmployeeId(request.getName(), employee.getId())) {
-            throw new DuplicateKeyException(Duplicate.KPI.formatted(request.getName()));
+            if (kpiRepository.existsByNameIgnoreCaseAndEmployeeId(request.getName(), employee.getId())) {
+                throw new DuplicateKeyException(Duplicate.KPI.formatted(request.getName()));
+            }
+            KPI kpi = KPI.builder()
+                    .kpiPeriod(kpiPeriod)
+                    .description(request.getDescription())
+                    .name(request.getName())
+                    .employee(employee)
+                    .measureUnit(request.getMeasureUnit())
+                    .targetValue(request.getTargetValue())
+                    .weight(request.getWeight())
+                    .build();
+            kpiList.add(kpi);
         }
-        KPI kpi = KPI.builder()
-                .kpiPeriod(kpiPeriod)
-                .description(request.getDescription())
-                .name(request.getName())
-                .employee(employee)
-                .measureUnit(request.getMeasureUnit())
-                .targetValue(request.getTargetValue())
-                .weight(request.getWeight())
-                .build();
+        return kpiRepository.saveAll(kpiList);
+    }
 
-        return kpiRepository.save(kpi);
+    public List<KPIPeriod> getAllKPIPeriod() {
+        return kpiPeriodRepository.findAll();
     }
 }

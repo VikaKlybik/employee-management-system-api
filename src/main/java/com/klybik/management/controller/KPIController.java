@@ -1,5 +1,6 @@
 package com.klybik.management.controller;
 
+import com.klybik.management.dto.filter.KPIFilterParam;
 import com.klybik.management.dto.kpi.CreateKPIAssessmentRequest;
 import com.klybik.management.dto.kpi.CreateKPIRequest;
 import com.klybik.management.dto.kpi.KPIResponse;
@@ -34,21 +35,26 @@ public class KPIController {
     }
 
     @GetMapping("/for-employee/{employeeId}")
-    public List<KPIResponse> getKPIForEmployee(@PathVariable UUID employeeId) {
-        List<KPI> kpiList = kpiService.getKPIForEmployee(employeeId);
+    public List<KPIResponse> getKPIForEmployee(@PathVariable UUID employeeId, KPIFilterParam kpiFilterParam) {
+        List<KPI> kpiList = kpiService.getKPIForEmployee(employeeId, kpiFilterParam);
         return kpiMapper.toListOfKPIResponses(kpiList);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public KPIResponse createKPI(@RequestBody @Valid CreateKPIRequest request) {
-        KPI kpi = kpiService.createKPI(request);
-        return kpiMapper.toKPIResponse(kpi);
+    public List<KPIResponse> createKPI(@RequestBody @Valid List<CreateKPIRequest> requests) {
+        List<KPI> kpis = kpiService.createKPIs(requests);
+        return kpiMapper.toListOfKPIResponses(kpis);
     }
 
     @PostMapping("/assessment/create")
     @ResponseStatus(HttpStatus.CREATED)
     public void createAssessmentForKPI(@AuthenticationPrincipal User user, @RequestBody @Valid CreateKPIAssessmentRequest kpiAssessmentRequest) {
         kpiService.createAssessmentForKPI(user, kpiAssessmentRequest);
+    }
+
+    @GetMapping("/kpi-period/all")
+    public List<KPIPeriod> getAllKPIPeriods() {
+        return kpiService.getAllKPIPeriod();
     }
 }
