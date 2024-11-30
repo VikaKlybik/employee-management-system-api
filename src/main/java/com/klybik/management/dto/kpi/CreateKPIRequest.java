@@ -18,5 +18,5 @@ public class CreateKPIRequest {
     private MeasureUnitEnum measureUnit;
     private BigDecimal weight;
     private UUID employeeId;
-    private UUID kpiPeriodId = UUID.fromString("643b2218-97ee-4693-a994-a40bfe864ed0");
+    private UUID kpiPeriodId;
 }

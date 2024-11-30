@@ -51,7 +51,7 @@ public class DevelopmentPlanService {
                 .orElseThrow(() -> new EntityNotFoundException(NotFound.DEVELOPMENT_PLAN.formatted(
                         planStatusRequest.getDevelopmentPlanId()))
                 );
-        developmentPlan.setStatus(developmentPlan.getStatus());
+        developmentPlan.setStatus(planStatusRequest.getDevelopmentStatus());
         return developmentPlanRepository.save(developmentPlan);
     }
 }
