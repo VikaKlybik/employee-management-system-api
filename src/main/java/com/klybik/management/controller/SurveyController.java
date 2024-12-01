@@ -1,28 +1,37 @@
 package com.klybik.management.controller;
 
-import com.klybik.management.dto.assessementSummary.AssessmentStatsAsTableResponse;
 import com.klybik.management.dto.assessementSummary.AssessmentStatsResponse;
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
-import com.klybik.management.dto.assessementSummary.AssessmentSummaryResponse;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
 import com.klybik.management.dto.question.OneQuestionResponse;
 import com.klybik.management.dto.question.UpdateQuestionRequest;
 import com.klybik.management.dto.survey.*;
-import com.klybik.management.entity.*;
+import com.klybik.management.entity.Competency;
+import com.klybik.management.entity.Passing;
+import com.klybik.management.entity.Question;
+import com.klybik.management.entity.Survey;
 import com.klybik.management.mapper.AssessmentSummaryMapper;
 import com.klybik.management.mapper.PassingMapper;
 import com.klybik.management.mapper.QuestionMapper;
 import com.klybik.management.mapper.SurveyMapper;
 import com.klybik.management.service.SurveyService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -138,5 +147,24 @@ public class SurveyController {
     @GetMapping("/{id}/competency")
     public List<Competency> getUniqueCompetencyForSurvey(@PathVariable UUID id) {
         return surveyService.getUniqueCompetencyForSurvey(id);
+    }
+
+    @GetMapping("/{id}/report/for-employee/{userId}")
+    @Operation(
+            responses = {
+                    @ApiResponse(
+                            content = @Content(
+                                    mediaType = "application/octet-stream",
+                                    schema = @Schema(type = "string", format = "binary")
+                            )
+                    )
+            }
+    )
+    public ResponseEntity<byte[]> getSurveyReportForUser(@PathVariable UUID id, @PathVariable UUID userId) {
+        Map.Entry<String, byte[]> reportData = surveyService.generateSurveyReport(id, userId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"%s\"".formatted(reportData.getKey()))
+                .body(reportData.getValue());
     }
 }
