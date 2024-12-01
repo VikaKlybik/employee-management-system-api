@@ -1,5 +1,8 @@
 package com.klybik.management.service;
 
+import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Duplicate;
+import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Logic;
+import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.dto.filter.KPIFilterParam;
 import com.klybik.management.dto.kpi.CreateKPIAssessmentRequest;
 import com.klybik.management.dto.kpi.CreateKPIRequest;
@@ -13,15 +16,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
-import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Logic;
-import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Duplicate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +30,7 @@ public class KPIService {
     private final UserService userService;
     private final KPIPeriodRepository kpiPeriodRepository;
     private final EmployeeService employeeService;
+    private final ExcelReportService excelReportService;
 
     public List<KPI> getKPIForEmployee(UUID employeeId, KPIFilterParam kpiFilterParam) {
         return kpiRepository.findByEmployeeIdAndKpiPeriodId(employeeId, kpiFilterParam.getKpiPeriodId());
@@ -48,7 +47,7 @@ public class KPIService {
         Employee employee = existingUser.getEmployee();
         KPI kpi = getKPIById(kpiAssessmentRequest.getKpiId());
 
-        if(!kpi.getEmployee().getId().equals(employee.getId())) {
+        if (!kpi.getEmployee().getId().equals(employee.getId())) {
             throw new KpiNotBelongsToEmployee(Logic.KPI_NOT_BELONGS_TO_EMPLOYEE);
         }
 
@@ -63,7 +62,7 @@ public class KPIService {
 
     public List<KPI> createKPIs(@Valid List<CreateKPIRequest> requests) {
         List<KPI> kpiList = new ArrayList<>();
-        for(CreateKPIRequest request: requests) {
+        for (CreateKPIRequest request : requests) {
             KPIPeriod kpiPeriod = kpiPeriodRepository.findById(request.getKpiPeriodId())
                     .orElseThrow(() -> new EntityNotFoundException(NotFound.KPI_PERIOD.formatted(request.getKpiPeriodId())));
             Employee employee = employeeService.getByEmployeeId(request.getEmployeeId());
@@ -87,5 +86,14 @@ public class KPIService {
 
     public List<KPIPeriod> getAllKPIPeriod() {
         return kpiPeriodRepository.findAll();
+    }
+
+    public Map.Entry<String, byte[]> generateKpiReport(UUID employeeId, KPIFilterParam kpiFilterParam) {
+        Employee employee = employeeService.getByEmployeeId(employeeId);
+        List<KPI> kpiList = getKPIForEmployee(employeeId, kpiFilterParam);
+        byte[] reportData = excelReportService.generateKpiReport(employee, kpiList);
+        return new AbstractMap.SimpleEntry<>(
+                "reportKPI.xlsx",
+                reportData);
     }
 }

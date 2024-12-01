@@ -30,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,7 @@ public class SurveyService {
     private final ResponseRepository responseRepository;
     private final AssessmentSummaryRepository assessmentSummaryRepository;
     private final AssessmentSummaryMapper assessmentSummaryMapper;
+    private final ExcelReportService excelReportService;
 
     public List<Survey> getAllSurvey(SurveyFilterParam filterParam) {
         Specification<Survey> surveySpecification = Specification
@@ -364,5 +367,14 @@ public class SurveyService {
                 .map(Question::getCompetency)
                 .distinct()
                 .toList();
+    }
+
+    public Map.Entry<String, byte[]> generateSurveyReport(UUID id, UUID userId) {
+        Employee employee = employeeService.getByUserId(userId);
+        List<AssessmentSummary> assessmentSummaries = assessmentSummaryRepository.findByEmployeeUserIdAndSurveyId(userId, id);
+        List<Competency> competencies = getUniqueCompetencyForSurvey(id);
+        return new AbstractMap.SimpleEntry<>(
+                "reportSurvey.xlsx",
+                excelReportService.generateSurveyReport(employee, assessmentSummaries, competencies));
     }
 }
