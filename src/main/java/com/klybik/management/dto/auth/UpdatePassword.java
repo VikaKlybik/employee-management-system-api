@@ -8,6 +8,5 @@ import lombok.*;
 @NoArgsConstructor
 public class UpdatePassword {
     private String email;
-    private String oldPassword;
     private String newPassword;
 }

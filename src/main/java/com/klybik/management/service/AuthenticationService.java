@@ -21,17 +21,17 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public void updatePassword(UpdatePassword request) {
+    public AuthenticationResponse updatePassword(UpdatePassword request) {
         User user = userService.getUserByEmail(request.getEmail());
-
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new InvalidPasswordException();
-        }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()))
                 .setIsFirstStart(false);
 
         userService.saveUser(user);
+        String jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 
     public AuthenticationResponse authentication(AuthenticationRequest request) {

@@ -5,8 +5,10 @@ import com.cloudinary.Transformation;
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.Duplicate;
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
 import com.klybik.management.constant.enums.UserRoleEnum;
+import com.klybik.management.dto.employee.EmployeeUpdateRequest;
 import com.klybik.management.dto.user.CreateUserRequest;
 import com.klybik.management.entity.Employee;
+import com.klybik.management.entity.JobTitle;
 import com.klybik.management.entity.User;
 import com.klybik.management.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -66,6 +69,7 @@ public class UserService {
                 .email(createUserRequest.getEmail())
                 .password(passwordEncoder.encode(createUserRequest.getPassword()))
                 .profilePhotoUrl(randomProfilePhotoUrl)
+                .isFirstStart(Boolean.FALSE)
                 .build();
 
         if (createUserRequest.getRole().equals(UserRoleEnum.EMPLOYEE.getValue())) {
@@ -73,7 +77,8 @@ public class UserService {
                     roleService.getRoleByName(createUserRequest.getRole())
             );
             Employee employee = Employee.builder()
-                    .jobTitle(jobTitleService.getJobTitleById(createUserRequest.getJobTittleId()))
+                    .jobTitle(jobTitleService.getJobTitleById(createUserRequest.getJobTitleId()))
+                    .workSince(LocalDateTime.now())
                     .build();
             employeeService.saveEmployee(employee);
             user.setEmployee(employee);
@@ -110,5 +115,26 @@ public class UserService {
 
         user.setProfilePhotoUrl(profilePhotoUrl);
         userRepository.save(user);
+    }
+
+    public Employee updateEmployee(UUID userId, EmployeeUpdateRequest employeeUpdateRequest) {
+        Employee employee = employeeService.getByUserId(userId);
+        if(!employee.getUser().getEmail().equals(employeeUpdateRequest.getEmail())) {
+            if (existsUserByEmail(employeeUpdateRequest.getEmail())) {
+                throw new DuplicateKeyException(
+                        Duplicate.USER.formatted(employeeUpdateRequest.getEmail())
+                );
+            }
+        }
+        User user = employee.getUser();
+        user.setFirstName(employeeUpdateRequest.getFirstName());
+        user.setLastName(employeeUpdateRequest.getLastName());
+        user.setEmail(employeeUpdateRequest.getEmail());
+
+        JobTitle jobTitle = jobTitleService.getJobTitleById(employeeUpdateRequest.getJobTitleId());
+        employee.setJobTitle(jobTitle);
+        userRepository.save(user);
+        employeeService.saveEmployee(employee);
+        return employeeService.getByUserId(userId);
     }
 }

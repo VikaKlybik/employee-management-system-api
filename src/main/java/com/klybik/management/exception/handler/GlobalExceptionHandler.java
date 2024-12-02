@@ -87,11 +87,21 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler({AccessDeniedException.class, AuthenticationException.class})
+    @ExceptionHandler({AccessDeniedException.class})
     public ErrorResponse handleAccessDeniedException() {
         return ErrorResponse.builder()
                 .errorType(ErrorTypeEnum.AUTHENTICATION)
                 .statusCode(HttpStatus.FORBIDDEN.value())
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({AuthenticationException.class})
+    public ErrorResponse handleNotRightAuthException() {
+        return ErrorResponse.builder()
+                .errorType(ErrorTypeEnum.AUTHENTICATION)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
                 .timestamp(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
     }

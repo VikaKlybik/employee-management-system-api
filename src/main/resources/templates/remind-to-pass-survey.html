@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Напоминание: Оцените коллегу</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007BFF;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .colleague-details {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Напоминание: Оцените коллегу</h1>
+    <p>Здравствуйте, <strong th:text="${username}">Иван Иванов</strong>!</p>
+    <p>Мы заметили, что вы ещё не прошли опрос о вашем коллеге. Пожалуйста, найдите время, чтобы завершить его.</p>
+
+    <div class="colleague-details">
+        <p><strong>Коллега:</strong></p>
+        <p>Имя: <span th:text="${colleague.firstName}">Иван</span></p>
+        <p>Фамилия: <span th:text="${colleague.lastName}">Иванов</span></p>
+        <p>Отдел: <span th:text="${colleague.department}">IT</span></p>
+        <p>Должность: <span th:text="${colleague.position}">Менеджер</span></p>
+    </div>
+
+    <a href="#" class="button" th:href="${surveyLink}">Пройти опрос</a>
+
+    <div class="footer">
+        <p>Если у вас есть вопросы, свяжитесь с нами по адресу <a href="mailto:support@example.com">support@example.com</a>.</p>
+    </div>
+</div>
+</body>
+</html>

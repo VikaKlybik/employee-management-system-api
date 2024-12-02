@@ -1,6 +1,7 @@
 package com.klybik.management.service;
 
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
+import com.klybik.management.dto.employee.EmployeeUpdateRequest;
 import com.klybik.management.dto.filter.EmployeeFilterParam;
 import com.klybik.management.dto.filter.GenerateDefaultEvaluatorsParam;
 import com.klybik.management.entity.Employee;
@@ -9,8 +10,6 @@ import com.klybik.management.repository.EmployeeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 

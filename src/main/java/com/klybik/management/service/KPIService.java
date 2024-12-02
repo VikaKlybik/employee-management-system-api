@@ -33,6 +33,7 @@ public class KPIService {
     private final ExcelReportService excelReportService;
 
     public List<KPI> getKPIForEmployee(UUID employeeId, KPIFilterParam kpiFilterParam) {
+        employeeService.getByEmployeeId(employeeId);
         return kpiRepository.findByEmployeeIdAndKpiPeriodId(employeeId, kpiFilterParam.getKpiPeriodId());
     }
 
