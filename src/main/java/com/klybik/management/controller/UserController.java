@@ -1,8 +1,12 @@
 package com.klybik.management.controller;
 
+import com.klybik.management.dto.employee.EmployeeResponse;
+import com.klybik.management.dto.employee.EmployeeUpdateRequest;
 import com.klybik.management.dto.user.CreateUserRequest;
 import com.klybik.management.dto.user.UserResponse;
+import com.klybik.management.entity.Employee;
 import com.klybik.management.entity.User;
+import com.klybik.management.mapper.EmployeeMapper;
 import com.klybik.management.mapper.UserMapper;
 import com.klybik.management.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +29,7 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final EmployeeMapper employeeMapper;
 
     @GetMapping
     public UserResponse getUserByEmail(@PathParam("email") String email) {
@@ -46,5 +51,11 @@ public class UserController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void uploadProfileImage(@PathVariable UUID id, @RequestParam("file") MultipartFile file) throws IOException {
         userService.uploadImageToUser(id, file);
+    }
+
+    @PutMapping("/{userId}")
+    public EmployeeResponse updateEmployee(@PathVariable UUID userId, @RequestBody EmployeeUpdateRequest employeeUpdateRequest) {
+        Employee employee = userService.updateEmployee(userId, employeeUpdateRequest);
+        return employeeMapper.toEmployeeResponse(employee);
     }
 }

@@ -63,6 +63,11 @@ public class SurveyController {
     public void passSurvey(@RequestBody FullPassSurveyRequest fullPassSurveyRequest) {
         surveyService.passSurvey(fullPassSurveyRequest);
     }
+    @GetMapping("/result/for-employee/{userId}")
+    public List<SimpleSurveyResponse> getSurveyResultForEmployee(@PathVariable(name = "userId") UUID userId) {
+        List<Survey> surveys = surveyService.getAllSurveyForEmployee(userId);
+        return surveyMapper.toListSimpleSurveyResponses(surveys);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

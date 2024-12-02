@@ -22,5 +22,5 @@ public class CreateUserRequest {
     @NotBlank(message = "Password is mandatory!")
     private String password;
     private String role = UserRoleEnum.EMPLOYEE.getValue();
-    private UUID jobTittleId;
+    private UUID jobTitleId;
 }

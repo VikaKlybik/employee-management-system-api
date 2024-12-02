@@ -286,9 +286,11 @@ public class SurveyService {
 
     @Transactional
     public Survey closeSurvey(UUID id) {
-        //TODO logic for creating devolpement plan
 
         Survey survey = getSurveyById(id);
+        if(survey.getStatus() == SurveyStatusEnum.CLOSED) {
+            throw new SurveyChangeStatusException(Logic.SURVEY_CLOSED);
+        }
 
         List<AssessmentSummary> assessmentSummaries = survey.getQuestions().stream()
                 .flatMap(question -> question.getResponses().stream())
@@ -376,5 +378,22 @@ public class SurveyService {
         return new AbstractMap.SimpleEntry<>(
                 "reportSurvey.xlsx",
                 excelReportService.generateSurveyReport(employee, assessmentSummaries, competencies));
+    }
+
+    public List<Survey> getAllSurveyForEmployee(UUID userId) {
+        return getAllSurvey(SurveyFilterParam.builder()
+                .status(SurveyStatusEnum.CLOSED)
+                .build())
+                .stream()
+                .filter(survey -> {
+                    for (Passing passing: survey.getPassingList()) {
+                        if(passing.getEvaluatedPerson().getUser().getId().equals(userId)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .toList();
+
     }
 }
