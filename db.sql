@@ -78,7 +78,6 @@ create table kpi_period (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     start_date date  NOT NULL,
     end_date date NOT NULL,
-    kpi_id uuid NOT NULL,
     CONSTRAINT kpi_period_pk PRIMARY KEY (id)
 );
 

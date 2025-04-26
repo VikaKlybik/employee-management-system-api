@@ -4,12 +4,14 @@ import com.klybik.management.constant.enums.EvaluationMethodEnum;
 import com.klybik.management.constant.enums.SurveyStatusEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CreateSurveyRequest {
     @NotNull(message = "Name is mandatory!")
     private String name;

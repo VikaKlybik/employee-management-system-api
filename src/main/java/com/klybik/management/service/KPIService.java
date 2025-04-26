@@ -68,9 +68,9 @@ public class KPIService {
                     .orElseThrow(() -> new EntityNotFoundException(NotFound.KPI_PERIOD.formatted(request.getKpiPeriodId())));
             Employee employee = employeeService.getByEmployeeId(request.getEmployeeId());
 
-            if (kpiRepository.existsByNameIgnoreCaseAndEmployeeId(request.getName(), employee.getId())) {
-                throw new DuplicateKeyException(Duplicate.KPI.formatted(request.getName()));
-            }
+//            if (kpiRepository.existsByNameIgnoreCaseAndEmployeeId(request.getName(), employee.getId())) {
+//                throw new DuplicateKeyException(Duplicate.KPI.formatted(request.getName()));
+//            }
             KPI kpi = KPI.builder()
                     .kpiPeriod(kpiPeriod)
                     .description(request.getDescription())

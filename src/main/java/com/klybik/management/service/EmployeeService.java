@@ -1,7 +1,6 @@
 package com.klybik.management.service;
 
 import com.klybik.management.constant.EmployeeManagementSystemConstant.Error.NotFound;
-import com.klybik.management.dto.employee.EmployeeUpdateRequest;
 import com.klybik.management.dto.filter.EmployeeFilterParam;
 import com.klybik.management.dto.filter.GenerateDefaultEvaluatorsParam;
 import com.klybik.management.entity.Employee;
@@ -11,12 +10,10 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -109,14 +106,17 @@ public class EmployeeService {
                 evaluators.addAll(getEvaluatorsUsingMethod360(employee));
                 break;
             }
-        };
+        }
+        ;
 
         return evaluators;
-    };
+    }
+
+    ;
 
     private List<Employee> getEvaluatorsUsingMethod270(Employee evaluatedEmployee) {
         List<Employee> evaluators = new ArrayList<>(getColleagues(evaluatedEmployee));
-        if(evaluatedEmployee.getJobTitle().getLead()!=null) {
+        if (evaluatedEmployee.getJobTitle().getLead() != null) {
             evaluators.addAll(getLeads(evaluatedEmployee));
         }
         evaluators.add(evaluatedEmployee);
@@ -144,8 +144,53 @@ public class EmployeeService {
     }
 
     private List<Employee> getSubordinates(Employee employee) {
-        return employeeRepository.findAllByJobTitleLeadId(employee.getJobTitle().getId());
+        return getSubordinatesRecursive(employee, 0);
     }
+
+    private List<Employee> getSubordinatesRecursive(Employee employee, int depth) {
+        List<Employee> directSubordinates = employeeRepository.findAllByJobTitleLeadId(employee.getJobTitle().getId());
+
+        if (directSubordinates.isEmpty()) {
+            if(depth == 0) {
+                return List.of();
+            } else {
+                return List.of(employee);
+            }
+        }
+
+        List<Employee> result = new ArrayList<>(directSubordinates);
+
+        for (Employee subordinate : directSubordinates) {
+            List<Employee> nextLevel = employeeRepository.findAllByJobTitleLeadId(subordinate.getJobTitle().getId());
+
+            if (!nextLevel.isEmpty()) {
+                List<Employee> selectedEmployees;
+
+                if (depth == 0) { // Первый уровень подчинённых — брать всех
+                    selectedEmployees = nextLevel;
+                } else { // Начиная со второго уровня — брать только 2 случайных
+                    selectedEmployees = getTwoRandomElements(nextLevel);
+                }
+
+                for (Employee nextEmployee : selectedEmployees) {
+                    result.addAll(getSubordinatesRecursive(nextEmployee, depth + 1));
+                }
+            }
+        }
+
+        return result.stream()
+                .distinct()
+                .toList();
+    }
+
+    public List<Employee> getTwoRandomElements(List<Employee> list) {
+        if (list.size() < 2) {
+            return list;
+        }
+        Collections.shuffle(list, new Random());
+        return list.subList(0, 2);
+    }
+
 
     public List<Employee> getAllEmployeeInListOfId(List<UUID> evaluatorIds) {
         return employeeRepository.findAllByUserIdIn(evaluatorIds);
