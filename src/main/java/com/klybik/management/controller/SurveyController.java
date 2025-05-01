@@ -2,6 +2,7 @@ package com.klybik.management.controller;
 
 import com.klybik.management.dto.assessementSummary.AssessmentStatsResponse;
 import com.klybik.management.dto.assessementSummary.AssessmentSummaryRequest;
+import com.klybik.management.dto.assessementSummary.HistoryAssessmentSummaryResponse;
 import com.klybik.management.dto.evaluators.CreateEvaluatorsRequest;
 import com.klybik.management.dto.filter.SurveyFilterParam;
 import com.klybik.management.dto.question.CreateQuestionRequest;
@@ -152,6 +153,11 @@ public class SurveyController {
     @GetMapping("/{id}/competency")
     public List<Competency> getUniqueCompetencyForSurvey(@PathVariable UUID id) {
         return surveyService.getUniqueCompetencyForSurvey(id);
+    }
+
+    @GetMapping("/passing/history/assessment-summary/for-employee/{userId}")
+    public List<HistoryAssessmentSummaryResponse> getDynamicOfAssessmentSummary(@PathVariable UUID userId) {
+        return surveyService.getDynamicOfAssessmentSummary(userId);
     }
 
     @GetMapping("/{id}/report/for-employee/{userId}")

@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface AssessmentSummaryRepository extends JpaRepository<AssessmentSummary, UUID> {
     List<AssessmentSummary> findByEmployeeUserIdAndSurveyId(UUID userId, UUID surveyId);
+    List<AssessmentSummary> findByEmployeeUserId(UUID userId);
 }

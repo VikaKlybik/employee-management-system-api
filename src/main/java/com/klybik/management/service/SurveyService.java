@@ -29,11 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -288,7 +286,7 @@ public class SurveyService {
     public Survey closeSurvey(UUID id) {
 
         Survey survey = getSurveyById(id);
-        if(survey.getStatus() == SurveyStatusEnum.CLOSED) {
+        if (survey.getStatus() == SurveyStatusEnum.CLOSED) {
             throw new SurveyChangeStatusException(Logic.SURVEY_CLOSED);
         }
 
@@ -386,8 +384,8 @@ public class SurveyService {
                 .build())
                 .stream()
                 .filter(survey -> {
-                    for (Passing passing: survey.getPassingList()) {
-                        if(passing.getEvaluatedPerson().getUser().getId().equals(userId)) {
+                    for (Passing passing : survey.getPassingList()) {
+                        if (passing.getEvaluatedPerson().getUser().getId().equals(userId)) {
                             return true;
                         }
                     }
@@ -395,5 +393,21 @@ public class SurveyService {
                 })
                 .toList();
 
+    }
+
+    public List<HistoryAssessmentSummaryResponse> getDynamicOfAssessmentSummary(UUID userId) {
+        return assessmentSummaryRepository.findByEmployeeUserId(userId).stream()
+                .collect(Collectors.groupingBy(a -> a.getSurvey().getCreatedAt().toLocalDate()))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    LocalDate date = entry.getKey();
+                    List<AssessmentSummaryResponse> assements = assessmentSummaryMapper.toAssessmentSummaryResponseList(
+                            entry.getValue()
+                    );
+                    return new HistoryAssessmentSummaryResponse(date, assements);
+                })
+                .sorted(Comparator.comparing(HistoryAssessmentSummaryResponse::getDate))
+                .collect(Collectors.toList());
     }
 }
