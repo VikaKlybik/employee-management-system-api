@@ -25,6 +25,7 @@ public interface EmployeeManagementSystemConstant {
             String SURVEY_PUBLISHED = "Survey has already been published.";
             String INVALID_SURVEY_STATUS = "Invalid survey status '%s'";
             String INVALID_DEVELOPMENT = "Invalid development plan data";
+            String DEPARTMENT_DELETE_FAILED = "Department with id '%s' contain jobs";
         }
         interface Duplicate {
             String USER = "User with email = '%s' already exists";

@@ -60,16 +60,17 @@ public class JobTitleService {
 
     public JobTitle updateJobTitle(UUID jobTitleId, UpdateJobTitleRequest updateJobTitleRequest) {
         JobTitle jobTitle = getJobTitleById(jobTitleId);
-        validateJobTitleExistByDepartmentIdAndName(jobTitle.getDepartment().getId(), updateJobTitleRequest.getName());
 
         if (updateJobTitleRequest.getIsLead().equals(Boolean.FALSE)
-                && jobTitle.getIsLead().equals(Boolean.TRUE)
-                && !jobTitle.getSubordinates().isEmpty()) {
+                && (jobTitle.getIsLead().equals(Boolean.TRUE)
+                && !jobTitle.getSubordinates().isEmpty())) {
             throw new UpdateLeadException();
         }
+        JobTitle lead = getJobTitleById(updateJobTitleRequest.getLead());
 
         jobTitle.setName(updateJobTitleRequest.getName())
-                .setIsLead(updateJobTitleRequest.getIsLead());
+                .setIsLead(updateJobTitleRequest.getIsLead())
+                .setLead(lead);
 
         return jobTitleRepository.save(jobTitle);
     }
